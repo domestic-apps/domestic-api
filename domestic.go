@@ -9,8 +9,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"domestic/chores"
-	"domestic/tasks"
+	"github.com/domestic-apps/domestic-api/chores"
+	"github.com/domestic-apps/domestic-api/tasks"
 )
 
 type secrets struct {
