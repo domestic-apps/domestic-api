@@ -44,5 +44,11 @@ func main() {
 	tasksHandler := tasks.InitializeHandler(db)
 	http.HandleFunc("/chores/", choresHandler.Handle)
 	http.HandleFunc("/tasks/", tasksHandler.Handle)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// log.Fatal(http.ListenAndServe(":8080", nil))
+
+	// Let's try doing a database changey thing!
+	currentTime := time.Now() // We'll query the chores for things at this time.
+	//
+	stmt, err := db.Prepare("INSERT INTO chores(chore_id, c_time) SELECT (chore_id, NULL) from chores where ? = true AND ((dwm = 'd') OR (dwm = 'w' AND day = ?) OR (dwm = 'm' AND date = ?))")
+	stmt.Exec("morning", currentTime.Weekday, currentTime.day)
 }
