@@ -4,7 +4,6 @@ package chores
 
 import (
 	"database/sql"
-	//"time"
 )
 
 type Chore struct {

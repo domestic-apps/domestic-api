@@ -53,7 +53,7 @@ func main() {
 	stmt, err := db.Prepare("INSERT INTO tasks(chore_id, c_time) SELECT chore_id, NULL from chores where (morning = ? OR night = ?) AND ((dwm = 'd') OR (dwm = 'w' AND day = ?) OR (dwm = 'm' AND date = ?))")
 
 	if err != nil {
-	log.Fatal(err)
+		log.Fatal(err)
 	}
 	log.Println(currentTime.Weekday(), currentTime.Day())
 	_, err = stmt.Exec(1, -1, currentTime.Weekday(), currentTime.Day())
