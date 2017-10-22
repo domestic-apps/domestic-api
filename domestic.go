@@ -11,7 +11,6 @@ import (
 
 	"github.com/domestic-apps/domestic-api/chores"
 	"github.com/domestic-apps/domestic-api/tasks"
-	"time"
 )
 
 type secrets struct {
@@ -45,17 +44,5 @@ func main() {
 	tasksHandler := tasks.InitializeHandler(db)
 	http.HandleFunc("/chores/", choresHandler.Handle)
 	http.HandleFunc("/tasks/", tasksHandler.Handle)
-	// log.Fatal(http.ListenAndServe(":8080", nil))
-
-	// Let's try doing a database changey thing!
-	currentTime := time.Now() // We'll query the chores for things at this time.
-	//
-	stmt, err := db.Prepare("INSERT INTO tasks(chore_id, c_time) SELECT chore_id, NULL from chores where (morning = ? OR night = ?) AND ((dwm = 'd') OR (dwm = 'w' AND day = ?) OR (dwm = 'm' AND date = ?))")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(currentTime.Weekday(), currentTime.Day())
-	_, err = stmt.Exec(1, -1, currentTime.Weekday(), currentTime.Day())
-	log.Println(err)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
