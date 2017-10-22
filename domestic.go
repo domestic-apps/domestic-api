@@ -11,6 +11,7 @@ import (
 
 	"github.com/domestic-apps/domestic-api/chores"
 	"github.com/domestic-apps/domestic-api/tasks"
+	"time"
 )
 
 type secrets struct {
@@ -50,5 +51,5 @@ func main() {
 	currentTime := time.Now() // We'll query the chores for things at this time.
 	//
 	stmt, err := db.Prepare("INSERT INTO chores(chore_id, c_time) SELECT (chore_id, NULL) from chores where ? = true AND ((dwm = 'd') OR (dwm = 'w' AND day = ?) OR (dwm = 'm' AND date = ?))")
-	stmt.Exec("morning", currentTime.Weekday, currentTime.day)
+	stmt.Exec("morning", currentTime.Weekday, currentTime.Day)
 }
