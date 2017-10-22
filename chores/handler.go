@@ -57,6 +57,8 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+		choreBytes, _ := json.Marshal(chore)
+		w.Write(choreBytes)
 	case http.MethodGet:
 		choreList, err := h.getAllChores()
 		if err != nil {
