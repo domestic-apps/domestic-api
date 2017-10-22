@@ -55,5 +55,7 @@ func main() {
 	if err != nil {
 	log.Fatal(err)
 	}
-	stmt.Exec("morning", currentTime.Weekday, currentTime.Day)
+	log.Println(currentTime.Weekday, currentTime.Day)
+	_, err = stmt.Exec("morning", currentTime.Weekday, currentTime.Day)
+	log.Println(err)
 }
