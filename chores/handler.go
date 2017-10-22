@@ -38,6 +38,7 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	var chore Chore

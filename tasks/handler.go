@@ -2,8 +2,8 @@ package tasks
 
 import (
 	"database/sql"
-	//"encoding/json"
-	//"io/ioutil"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -31,6 +31,40 @@ func InitializeHandler(db *sql.DB) *handler {
 }
 
 func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
-	log.Printf("For the tasks\n")
-	// fmt.Fprintf(w, "Heeyyyaaa.")
+	switch r.Method {
+	case http.MethodGet:
+		taskList, err := h.getAllTasks()
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		taskBytes, _ := json.Marshal(taskList)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(taskBytes)
+	case http.MethodPut:
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		// TODO more input validation
+		var task Task
+		err = json.Unmarshal(body, &task)
+		if err != nil {
+			log.Println("error:", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = h.modifyTask(&task)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK) // TODO modified?
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
