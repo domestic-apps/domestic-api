@@ -78,6 +78,7 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 	return taskList, nil
 }
 
+// TODO prevent cheekiness: could have done_by contention
 func modifyTaskStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("UPDATE tasks set done = ?, done_by = ? where task_id = ?")
 }
