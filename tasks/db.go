@@ -11,7 +11,6 @@ import (
 type Task struct {
 	Key        int64     `json:"key"`
 	ShortDesc  string    `json:"short_desc"`
-	LongDesc   string    `json:"long_desc"`
 	Done       bool      `json:"done"`
 	DoneBy     string    `json:"done_by"`
 	CreateTime time.Time `json:"c_time"`
@@ -39,7 +38,7 @@ func (h *handler) setChoresNow(t time.Time) error {
 }
 
 func getAllTasksStmt(db *sql.DB) (*sql.Stmt, error) {
-	return db.Prepare("SELECT task_id, chores.short_desc, chores.long_desc, done, done_by, tasks.c_time, tasks.chore_id from tasks left join chores on (tasks.chore_id = chores.chore_id)")
+	return db.Prepare("SELECT task_id, chores.short_desc, done, done_by, tasks.c_time, tasks.chore_id from tasks left join chores on (tasks.chore_id = chores.chore_id)")
 }
 
 func (h *handler) getAllTasks() ([]*Task, error) {
@@ -52,7 +51,6 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 		taskList    []*Task
 		task_id     int64
 		short_desc  string
-		long_desc   string
 		done        bool
 		done_by_raw sql.NullString
 		done_by     string
@@ -60,7 +58,7 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 		c_time      time.Time
 	)
 	for rows.Next() {
-		err := rows.Scan(&task_id, &short_desc, &long_desc, &done, &done_by_raw, &c_time, &chore_id)
+		err := rows.Scan(&task_id, &short_desc, &done, &done_by_raw, &c_time, &chore_id)
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +69,7 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 			done_by = ""
 		}
 
-		t := &Task{task_id, short_desc, long_desc, done, done_by, c_time, chore_id}
+		t := &Task{task_id, short_desc, done, done_by, c_time, chore_id}
 		taskList = append(taskList, t)
 	}
 	if err = rows.Err(); err != nil {
