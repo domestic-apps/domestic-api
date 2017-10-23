@@ -87,6 +87,7 @@ func (h *handler) modifyTask(task *Task) error {
 	_, err := h.modifyTaskStmt.Exec(
 		task.Done,
 		task.DoneBy,
+		task.Key,
 	)
 	return err
 }
