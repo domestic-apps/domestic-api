@@ -68,7 +68,7 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 		if done_by_raw.Valid {
 			done_by = done_by_raw.String
 		} else {
-			done_by = nil
+			done_by = ""
 		}
 
 		t := &Task{task_id, short_desc, long_desc, done, done_by, c_time, chore_id}
