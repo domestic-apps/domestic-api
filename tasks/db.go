@@ -49,20 +49,28 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 	}
 	defer rows.Close()
 	var (
-		taskList   []*Task
-		task_id    int64
-		short_desc string
-		long_desc  string
-		done       bool
-		done_by    string
-		chore_id   int64
-		c_time     time.Time
+		taskList    []*Task
+		task_id     int64
+		short_desc  string
+		long_desc   string
+		done        bool
+		done_by_raw sql.NullString
+		done_by     string
+		chore_id    int64
+		c_time      time.Time
 	)
 	for rows.Next() {
-		err := rows.Scan(&task_id, &short_desc, &long_desc, &done, &done_by, &c_time, &chore_id)
+		err := rows.Scan(&task_id, &short_desc, &long_desc, &done, &done_by_raw, &c_time, &chore_id)
 		if err != nil {
 			return nil, err
 		}
+
+		if done_by_raw.Valid {
+			done_by = done_by_raw.String
+		} else {
+			done_by = nil
+		}
+
 		t := &Task{task_id, short_desc, long_desc, done, done_by, c_time, chore_id}
 		taskList = append(taskList, t)
 	}
