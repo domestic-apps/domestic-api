@@ -11,6 +11,8 @@ import (
 
 	"github.com/domestic-apps/domestic-api/chores"
 	"github.com/domestic-apps/domestic-api/tasks"
+
+	"gopkg.in/robfig/cron.v2"
 )
 
 type secrets struct {
@@ -27,6 +29,7 @@ func main() {
 
 	var s secrets
 	json.Unmarshal(file, &s)
+	timezone := "America/Los_Angeles"
 
 	// Set up Database
 	db, err := sql.Open("mysql",
@@ -41,8 +44,11 @@ func main() {
 
 	// Prepare statements in application handlers.
 	choresHandler := chores.InitializeHandler(db)
-	tasksHandler := tasks.InitializeHandler(db)
+	tasksHandler := tasks.InitializeHandler(db, timezone)
 	http.HandleFunc("/chores/", choresHandler.Handle)
 	http.HandleFunc("/tasks/", tasksHandler.Handle)
+	c := cron.New()
+	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
+	c.Start()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

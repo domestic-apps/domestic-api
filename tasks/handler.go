@@ -6,12 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type handler struct {
 	setChoresNowStmt *sql.Stmt
 	getAllTasksStmt  *sql.Stmt
 	modifyTaskStmt   *sql.Stmt
+	timezone         *time.Location
 }
 
 func initStmt(f func(db *sql.DB) (*sql.Stmt, error), db *sql.DB) *sql.Stmt {
@@ -22,11 +24,16 @@ func initStmt(f func(db *sql.DB) (*sql.Stmt, error), db *sql.DB) *sql.Stmt {
 	return stmt
 }
 
-func InitializeHandler(db *sql.DB) *handler {
+func InitializeHandler(db *sql.DB, timezone string) *handler {
+	l, err := time.LoadLocation(timezone)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &handler{
 		setChoresNowStmt: initStmt(setChoresNowStmt, db),
 		getAllTasksStmt:  initStmt(getAllTasksStmt, db),
 		modifyTaskStmt:   initStmt(modifyTaskStmt, db),
+		timezone:         l,
 	}
 }
 
@@ -66,5 +73,14 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK) // TODO modified?
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+// Cron is run periodically, whenever the cron job in main triggers the function.
+func (h *handler) Cron() {
+	log.Println("Time: ", time.Now().In(h.timezone))
+	err := h.setChoresNow(time.Now().In(h.timezone))
+	if err != nil {
+		log.Println(err)
 	}
 }
