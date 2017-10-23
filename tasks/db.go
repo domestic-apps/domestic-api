@@ -27,7 +27,7 @@ func (h *handler) setChoresNow(t time.Time) error {
 		isMorning int
 		isNight   int
 	)
-	if t.Hour() >= 5 || t.Hour() < 17 {
+	if t.Hour() >= 5 && t.Hour() < 17 {
 		isMorning = 1
 		isNight = -1
 	} else {
