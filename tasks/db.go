@@ -31,8 +31,8 @@ func (h *handler) setChoresNow(t time.Time) error {
 		isMorning = 1
 		isNight = -1
 	} else {
-		isNight = -1
-		isMorning = 1
+		isMorning = -1
+		isNight = 1
 	}
 	_, err := h.setChoresNowStmt.Exec(isMorning, isNight, t.Weekday(), t.Day())
 	return err
