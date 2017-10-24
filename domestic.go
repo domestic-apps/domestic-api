@@ -18,6 +18,8 @@ import (
 type secrets struct {
 	Uname string `json:"username"`
 	Pwd   string `json:"password"`
+	Cert  string `json:"cert"`
+	Key   string `json:"key"`
 }
 
 func main() {
@@ -50,5 +52,5 @@ func main() {
 	c := cron.New()
 	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
 	c.Start()
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServeTLS(":443", s.Cert, s.Key, nil))
 }
