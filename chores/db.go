@@ -54,7 +54,6 @@ func (h *handler) getAllChores() ([]*Chore, error) {
 	}
 	defer rows.Close()
 	var (
-		choreList  []*Chore
 		chore_id   int64
 		short_desc string
 		long_desc  string
@@ -64,6 +63,7 @@ func (h *handler) getAllChores() ([]*Chore, error) {
 		day        int
 		date       int
 	)
+	choreList := make([]*Chore, 0)
 	for rows.Next() {
 		err := rows.Scan(&chore_id, &short_desc, &long_desc, &morning, &night, &dwm, &day, &date)
 		if err != nil {

@@ -48,7 +48,6 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 	}
 	defer rows.Close()
 	var (
-		taskList    []*Task
 		task_id     int64
 		short_desc  string
 		done        bool
@@ -57,6 +56,7 @@ func (h *handler) getAllTasks() ([]*Task, error) {
 		chore_id    int64
 		c_time      time.Time
 	)
+	taskList := make([]*Task, 0)
 	for rows.Next() {
 		err := rows.Scan(&task_id, &short_desc, &done, &done_by_raw, &c_time, &chore_id)
 		if err != nil {
