@@ -19,6 +19,7 @@ import (
 
 	"gopkg.in/robfig/cron.v2"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -39,12 +40,23 @@ func main() {
 
 func addUser() {
 	username, password := credentials()
-	fmt.Printf("Username: %s, Password: %s\n", username, password)
+	passHash, err := bcrypt.GenerateFromPassword(password, 6)
+	fmt.Print("Enter Password Again")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	fmt.Println()
+	if err != nil {
+		log.Fatal("Could not get the password, oh no!")
+	}
+	err = bcrypt.CompareHashAndPassword(passHash, bytePassword)
+	if err != nil {
+		log.Fatal("Passwords did not match, or some other thing went wrong")
+	}
+	fmt.Printf("This would be the part where we add username and passHash to the database: " + username)
 }
 
 // credentials gets username and password credentials from the command line.
 // This was totally stolen from https://play.golang.org/p/l-9IP1mrhA
-func credentials() (string, string) {
+func credentials() (string, []byte) {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Enter Username: ")
@@ -52,12 +64,12 @@ func credentials() (string, string) {
 
 	fmt.Print("Enter Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err == nil {
-		fmt.Println("\nPassword typed: " + string(bytePassword))
+	fmt.Println()
+	if err != nil {
+		log.Fatal("Could not get the password, oh no!")
 	}
-	password := string(bytePassword)
 
-	return strings.TrimSpace(username), strings.TrimSpace(password)
+	return strings.TrimSpace(username), bytePassword
 }
 
 func runServer() {
