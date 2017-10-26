@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strings"
+	"syscall"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -13,6 +18,8 @@ import (
 	"github.com/domestic-apps/domestic-api/tasks"
 
 	"gopkg.in/robfig/cron.v2"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type secrets struct {
@@ -23,6 +30,37 @@ type secrets struct {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "add-user" {
+		addUser()
+	} else {
+		runServer()
+	}
+}
+
+func addUser() {
+	username, password := credentials()
+	fmt.Printf("Username: %s, Password: %s\n", username, password)
+}
+
+// credentials gets username and password credentials from the command line.
+// This was totally stolen from https://play.golang.org/p/l-9IP1mrhA
+func credentials() (string, string) {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter Username: ")
+	username, _ := reader.ReadString('\n')
+
+	fmt.Print("Enter Password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err == nil {
+		fmt.Println("\nPassword typed: " + string(bytePassword))
+	}
+	password := string(bytePassword)
+
+	return strings.TrimSpace(username), strings.TrimSpace(password)
+}
+
+func runServer() {
 	// get mysql username and password from configuration
 	file, err := ioutil.ReadFile("./secrets.json")
 	if err != nil {
