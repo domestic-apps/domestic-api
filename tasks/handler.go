@@ -38,6 +38,8 @@ func InitializeHandler(db *sql.DB, timezone string) *handler {
 }
 
 func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
+	user, pass := r.BasicAuth()
+	log.Println(user, pass)
 	switch r.Method {
 	case http.MethodGet:
 		taskList, err := h.getAllTasks()

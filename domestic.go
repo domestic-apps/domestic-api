@@ -41,7 +41,7 @@ func main() {
 func addUser() {
 	username, password := credentials()
 	passHash, err := bcrypt.GenerateFromPassword(password, 6)
-	fmt.Print("Enter Password Again")
+	fmt.Print("Enter Password Again: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
 	if err != nil {
@@ -51,7 +51,7 @@ func addUser() {
 	if err != nil {
 		log.Fatal("Passwords did not match, or some other thing went wrong")
 	}
-	fmt.Printf("This would be the part where we add username and passHash to the database: " + username)
+	fmt.Println("This would be the part where we add username and passHash to the database: " + username)
 }
 
 // credentials gets username and password credentials from the command line.
