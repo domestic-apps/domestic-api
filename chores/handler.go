@@ -61,7 +61,7 @@ func (h *handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write(choreBytes)
 }
 
-func (h *handler) HandleRead(w http.ResponseWriter, r *http.Request) {
+func (h *handler) HandleReadList(w http.ResponseWriter, r *http.Request) {
 	choreList, err := h.getAllChores()
 	if err != nil {
 		log.Println(err)
