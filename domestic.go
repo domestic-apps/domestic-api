@@ -108,5 +108,6 @@ func runServer() {
 	c := cron.New()
 	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
 	c.Start()
-	log.Fatal(http.ListenAndServeTLS(":443", s.Cert, s.Key, r))
+	http.Handle("/", r)
+	log.Fatal(http.ListenAndServeTLS(":443", s.Cert, s.Key, nil))
 }
