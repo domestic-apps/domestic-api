@@ -6,6 +6,7 @@ import (
 	"database/sql"
 )
 
+// Chore holds information about a recurring household task
 type Chore struct {
 	Key       int64  `json:"key"`
 	ShortDesc string `json:"short_desc"`
@@ -35,11 +36,11 @@ func (h *handler) addChore(chore *Chore) error {
 	if err != nil {
 		return err
 	}
-	lastId, err := res.LastInsertId()
+	lastID, err := res.LastInsertId()
 	if err != nil {
 		return err
 	}
-	chore.Key = lastId
+	chore.Key = lastID
 	return nil
 }
 
@@ -54,22 +55,22 @@ func (h *handler) getAllChores() ([]*Chore, error) {
 	}
 	defer rows.Close()
 	var (
-		chore_id   int64
-		short_desc string
-		long_desc  string
-		morning    bool
-		night      bool
-		dwm        string
-		day        int
-		date       int
+		choreID   int64
+		shortDesc string
+		longDesc  string
+		morning   bool
+		night     bool
+		dwm       string
+		day       int
+		date      int
 	)
 	choreList := make([]*Chore, 0)
 	for rows.Next() {
-		err := rows.Scan(&chore_id, &short_desc, &long_desc, &morning, &night, &dwm, &day, &date)
+		err := rows.Scan(&choreID, &shortDesc, &longDesc, &morning, &night, &dwm, &day, &date)
 		if err != nil {
 			return nil, err
 		}
-		c := &Chore{chore_id, short_desc, long_desc, morning, night, dwm, day, date}
+		c := &Chore{choreID, shortDesc, longDesc, morning, night, dwm, day, date}
 		choreList = append(choreList, c)
 	}
 	if err = rows.Err(); err != nil {
@@ -111,7 +112,7 @@ func deleteChoreStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("DELETE FROM chores where chore_id = ?")
 }
 
-func (h *handler) deleteChore(choreId int64) error {
-	_, err := h.deleteChoreStmt.Exec(choreId)
+func (h *handler) deleteChore(choreID int64) error {
+	_, err := h.deleteChoreStmt.Exec(choreID)
 	return err
 }

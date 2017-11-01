@@ -24,6 +24,7 @@ func initStmt(f func(db *sql.DB) (*sql.Stmt, error), db *sql.DB) *sql.Stmt {
 	return stmt
 }
 
+// InitializeHandler is a factory-style method to prepare database statements and generate the private chore handler structure
 func InitializeHandler(db *sql.DB) *handler {
 	return &handler{
 		addChoreStmt:        initStmt(addChoreStmt, db),
@@ -34,7 +35,7 @@ func InitializeHandler(db *sql.DB) *handler {
 	}
 }
 
-func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -42,60 +43,64 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var chore Chore
-	switch r.Method {
-	case http.MethodPost:
-		// TODO more input validation
-		err := json.Unmarshal(body, &chore)
-		if err != nil {
-			log.Println("error:", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		err = h.addChore(&chore)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		choreBytes, _ := json.Marshal(chore)
-		w.Write(choreBytes)
-	case http.MethodGet:
-		choreList, err := h.getAllChores()
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		choreBytes, _ := json.Marshal(choreList)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(choreBytes)
-	case http.MethodPut:
-		// TODO more input validation
-		err := json.Unmarshal(body, &chore)
-		if err != nil {
-			log.Println("error:", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		err = h.modifyChore(&chore)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK) // TODO modified?
-	case http.MethodDelete:
-		// TODO more input validation
-		err := json.Unmarshal(body, &chore)
-		if err != nil {
-			log.Println("error:", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		err = h.deleteChore(chore.Key)
-		w.WriteHeader(http.StatusNoContent)
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	// TODO more input validation
+	err = json.Unmarshal(body, &chore)
+	if err != nil {
+		log.Println("error:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+	err = h.addChore(&chore)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	choreBytes, _ := json.Marshal(chore)
+	w.Write(choreBytes)
+}
+
+func (h *handler) HandleRead(w http.ResponseWriter, r *http.Request) {
+	choreList, err := h.getAllChores()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	choreBytes, _ := json.Marshal(choreList)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(choreBytes)
+}
+
+func (h *handler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	var chore Chore
+	// TODO more input validation
+	err = json.Unmarshal(body, &chore)
+	if err != nil {
+		log.Println("error:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = h.modifyChore(&chore)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK) // TODO modified?
+}
+
+func (h *handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
+	var chore Chore
+	body, err := ioutil.ReadAll(r.Body)
+	err = json.Unmarshal(body, &chore)
+	if err != nil {
+		log.Println("error:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = h.deleteChore(chore.Key)
+	w.WriteHeader(http.StatusNoContent)
 }
