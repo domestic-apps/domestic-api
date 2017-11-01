@@ -62,6 +62,7 @@ func (h *handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) HandleReadList(w http.ResponseWriter, r *http.Request) {
+	log.Println("Try this")
 	choreList, err := h.getAllChores()
 	if err != nil {
 		log.Println(err)

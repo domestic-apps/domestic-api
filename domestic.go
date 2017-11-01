@@ -101,10 +101,10 @@ func runServer() {
 	tasksHandler := tasks.InitializeHandler(db, timezone)
 	r := mux.NewRouter()
 	r.HandleFunc("/chores", choresHandler.HandleCreate).Methods("POST").Schemes("https")
+	r.HandleFunc("/chores", choresHandler.HandleReadList).Methods("GET").Schemes("https")
 	r.HandleFunc("/chores", choresHandler.HandleUpdate).Methods("PUT").Schemes("https")
 	r.HandleFunc("/chores", choresHandler.HandleDelete).Methods("DELETE").Schemes("https")
 	r.HandleFunc("/tasks/", tasksHandler.Handle)
-	r.HandleFunc("/chores", choresHandler.HandleReadList).Methods("GET").Schemes("https")
 	c := cron.New()
 	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
 	c.Start()
