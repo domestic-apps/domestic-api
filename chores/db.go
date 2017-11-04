@@ -22,7 +22,7 @@ func addChoreStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("INSERT INTO chores(short_desc, long_desc, morning, night, dwm, day, date, c_time) VALUES(?,?,?,?,?,?,?,?)")
 }
 
-func (h *handler) addChore(chore *Chore) error {
+func (h *Handler) addChore(chore *Chore) error {
 	res, err := h.addChoreStmt.Exec(
 		chore.ShortDesc,
 		chore.LongDesc,
@@ -48,7 +48,7 @@ func getAllChoresStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("SELECT chore_id, short_desc, long_desc, morning, night, dwm, day, date from chores")
 }
 
-func (h *handler) getAllChores() ([]*Chore, error) {
+func (h *Handler) getAllChores() ([]*Chore, error) {
 	rows, err := h.getAllChoresStmt.Query()
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func modifyChoreStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("UPDATE chores set short_desc = ?, long_desc = ?, morning = ?, night = ?, dwm = ?, day = ?, date = ? where chore_id = ?")
 }
 
-func (h *handler) modifyChore(chore *Chore) error {
+func (h *Handler) modifyChore(chore *Chore) error {
 	_, err := h.modifyChoreStmt.Exec(
 		chore.ShortDesc,
 		chore.LongDesc,
@@ -112,7 +112,7 @@ func deleteChoreStmt(db *sql.DB) (*sql.Stmt, error) {
 	return db.Prepare("DELETE FROM chores where chore_id = ?")
 }
 
-func (h *handler) deleteChore(choreID int64) error {
+func (h *Handler) deleteChore(choreID int64) error {
 	_, err := h.deleteChoreStmt.Exec(choreID)
 	return err
 }

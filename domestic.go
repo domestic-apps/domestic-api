@@ -104,7 +104,8 @@ func runServer() {
 	r.HandleFunc("/chores", choresHandler.HandleReadList).Methods("GET")
 	r.HandleFunc("/chores", choresHandler.HandleUpdate).Methods("PUT")
 	r.HandleFunc("/chores", choresHandler.HandleDelete).Methods("DELETE")
-	r.HandleFunc("/tasks/", tasksHandler.Handle)
+	r.HandleFunc("/tasks", tasksHandler.HandleReadList).Methods("GET")
+	r.HandleFunc("/tasks", tasksHandler.HandleSetDone).Methods("PUT")
 	c := cron.New()
 	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
 	c.Start()

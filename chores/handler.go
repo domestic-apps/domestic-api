@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type handler struct {
+type Handler struct {
 	addChoreStmt        *sql.Stmt
 	getAllChoresStmt    *sql.Stmt
 	getRecentChoresStmt *sql.Stmt
@@ -25,8 +25,8 @@ func initStmt(f func(db *sql.DB) (*sql.Stmt, error), db *sql.DB) *sql.Stmt {
 }
 
 // InitializeHandler is a factory-style method to prepare database statements and generate the private chore handler structure
-func InitializeHandler(db *sql.DB) *handler {
-	return &handler{
+func InitializeHandler(db *sql.DB) *Handler {
+	return &Handler{
 		addChoreStmt:        initStmt(addChoreStmt, db),
 		getAllChoresStmt:    initStmt(getAllChoresStmt, db),
 		getRecentChoresStmt: initStmt(getRecentChoresStmt, db),
@@ -35,7 +35,7 @@ func InitializeHandler(db *sql.DB) *handler {
 	}
 }
 
-func (h *handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -61,8 +61,7 @@ func (h *handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write(choreBytes)
 }
 
-func (h *handler) HandleReadList(w http.ResponseWriter, r *http.Request) {
-	log.Println("Try this")
+func (h *Handler) HandleReadList(w http.ResponseWriter, r *http.Request) {
 	choreList, err := h.getAllChores()
 	if err != nil {
 		log.Println(err)
@@ -74,7 +73,7 @@ func (h *handler) HandleReadList(w http.ResponseWriter, r *http.Request) {
 	w.Write(choreBytes)
 }
 
-func (h *handler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	var chore Chore
 	// TODO more input validation
@@ -93,7 +92,7 @@ func (h *handler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK) // TODO modified?
 }
 
-func (h *handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	var chore Chore
 	body, err := ioutil.ReadAll(r.Body)
 	err = json.Unmarshal(body, &chore)
