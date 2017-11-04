@@ -39,9 +39,11 @@ func authUser(username string, password string, r *http.Request) bool {
 	}
 	// TODO
 	fmt.Println("This would be the part where we fetch the passHash from the database using this username: " + username)
-	passHash := []byte("wowo")
-	err := bcrypt.CompareHashAndPassword(passHash, []byte(password))
-	if err != nil {
+	//passHash := []byte("wowo")
+	//err := bcrypt.CompareHashAndPassword(passHash, []byte(password))
+	//if err != nil {
+	// TODO temporary
+	if password != "wowo" {
 		// TODO log bad password
 		return false
 	}
