@@ -78,7 +78,7 @@ func runServer() {
 	// get mysql username and password from configuration
 	file, err := ioutil.ReadFile("./secrets.json")
 	if err != nil {
-		log.Fatal("File error: %v\n", err)
+		log.Fatalf("File error: %v\n", err)
 	}
 
 	var s secrets
@@ -100,14 +100,13 @@ func runServer() {
 	choresHandler := chores.InitializeHandler(db)
 	tasksHandler := tasks.InitializeHandler(db, timezone)
 	r := mux.NewRouter()
-	r.HandleFunc("/chores", choresHandler.HandleCreate).Methods("POST").Schemes("https")
-	r.HandleFunc("/chores", choresHandler.HandleReadList).Methods("GET").Schemes("https")
-	r.HandleFunc("/chores", choresHandler.HandleUpdate).Methods("PUT").Schemes("https")
-	r.HandleFunc("/chores", choresHandler.HandleDelete).Methods("DELETE").Schemes("https")
+	r.HandleFunc("/chores", choresHandler.HandleCreate).Methods("POST")
+	r.HandleFunc("/chores", choresHandler.HandleReadList).Methods("GET")
+	r.HandleFunc("/chores", choresHandler.HandleUpdate).Methods("PUT")
+	r.HandleFunc("/chores", choresHandler.HandleDelete).Methods("DELETE")
 	r.HandleFunc("/tasks/", tasksHandler.Handle)
 	c := cron.New()
 	c.AddFunc("TZ="+timezone+" 0 0 7,19 * * *", tasksHandler.Cron) // 7am and 7pm every day
 	c.Start()
-	http.Handle("/", r)
-	log.Fatal(http.ListenAndServeTLS(":443", s.Cert, s.Key, nil))
+	log.Fatal(http.ListenAndServeTLS(":443", s.Cert, s.Key, r))
 }
