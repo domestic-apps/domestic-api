@@ -22,21 +22,14 @@ import (
 )
 
 type secrets struct {
-	Uname string `json:"username"`
-	Pwd   string `json:"password"`
-	Cert  string `json:"cert"`
-	Key   string `json:"key"`
+	Uname    string `json:"username"`
+	Pwd      string `json:"password"`
+	Cert     string `json:"cert"`
+	Key      string `json:"key"`
+	Timezone string `json:"timezone"`
 }
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "add-user" {
-		addUser()
-	} else {
-		runServer()
-	}
-}
-
-func runServer() {
 	// get mysql username and password from configuration
 	file, err := ioutil.ReadFile("./secrets.json")
 	if err != nil {
@@ -45,7 +38,6 @@ func runServer() {
 
 	var s secrets
 	json.Unmarshal(file, &s)
-	timezone := "America/Los_Angeles"
 
 	// Set up Database
 	db, err := sql.Open("mysql",
@@ -58,7 +50,18 @@ func runServer() {
 	}
 	defer db.Close()
 
+	// Choose one of the things to do
+	if len(os.Args) > 1 && os.Args[1] == "add-user" {
+		addUser(db)
+	} else {
+		runServer(s, db)
+	}
+}
+
+func runServer(s secrets, db *sql.DB) {
+
 	// Prepare statements in application handlers.
+	timezone := s.Timezone
 	choresHandler := chores.InitializeHandler(db)
 	tasksHandler := tasks.InitializeHandler(db, timezone)
 	r := mux.NewRouter()
@@ -74,7 +77,7 @@ func runServer() {
 
 	// Add middleware (auth + logging)
 	o := httpauth.AuthOptions{
-		AuthFunc: authUser,
+		AuthFunc: authUser(db),
 	}
 	h := httpauth.BasicAuth(o)(r)
 	h = handlers.LoggingHandler(os.Stdout, h)

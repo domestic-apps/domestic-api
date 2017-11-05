@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,7 +16,7 @@ import (
 
 const hashNum = 6
 
-func addUser() {
+func addUser(db *sql.DB) {
 	username, password := credentials()
 	passHash, err := bcrypt.GenerateFromPassword(password, hashNum)
 	fmt.Print("Enter Password Again: ")
@@ -28,26 +29,43 @@ func addUser() {
 	if err != nil {
 		log.Fatal("Passwords did not match, or some other thing went wrong")
 	}
-	// TODO
-	fmt.Println("This would be the part where we add username and passHash to the database: " + username)
+	stmt, _ := db.Prepare("INSERT INTO users(username, password) VALUES(?,?)")
+	_, err = stmt.Exec(username, passHash)
+	if err == nil {
+		fmt.Println("Successfully added user!")
+	}
 }
 
-func authUser(username string, password string, r *http.Request) bool {
-	if password == "" {
-		// TODO log
-		return false
+func authUser(db *sql.DB) func(string, string, *http.Request) bool {
+	stmt, err := db.Prepare("SELECT password from users where username = ?")
+	if err != nil {
+		log.Fatalf("Stmt generation failed, here's the error: %v", err)
+		return func(username string, password string, r *http.Request) bool {
+			return false
+		}
 	}
-	// TODO
-	fmt.Println("This would be the part where we fetch the passHash from the database using this username: " + username)
-	//passHash := []byte("wowo")
-	//err := bcrypt.CompareHashAndPassword(passHash, []byte(password))
-	//if err != nil {
-	// TODO temporary
-	if password != "wowo" {
-		// TODO log bad password
-		return false
+	return func(username string, password string, r *http.Request) bool {
+		if password == "" {
+			// TODO log no password
+			return false
+		}
+		rows, err := stmt.Query(username)
+		defer rows.Close()
+		var passHash []byte
+
+		for rows.Next() {
+			err := rows.Scan(&passHash)
+			if err != nil {
+				return false
+			}
+		}
+		err = bcrypt.CompareHashAndPassword(passHash, []byte(password))
+		if err != nil {
+			// TODO log bad password
+			return false
+		}
+		return true
 	}
-	return true
 }
 
 // credentials gets username and password credentials from the command line.
