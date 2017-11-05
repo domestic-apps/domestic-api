@@ -33,6 +33,8 @@ func addUser(db *sql.DB) {
 	_, err = stmt.Exec(username, passHash)
 	if err == nil {
 		fmt.Println("Successfully added user!")
+	} else {
+		fmt.Printf("Could not add user: %v\n", err)
 	}
 }
 
